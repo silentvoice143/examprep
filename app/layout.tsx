@@ -5,6 +5,8 @@ import { cn } from "@/libs/utils/utils";
 import { Toaster } from "sonner";
 import Header from "@/components/layout/header";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import GlobalLoader from "@/components/layout/global-loader";
+import GlobalOverlayLoader from "@/components/layout/global-overlay-loader";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -40,23 +42,12 @@ export default function RootLayout({
         inter.variable,
       )}
     >
-      <body className="h-screen overflow-hidden bg-white-primary">
-        <TooltipProvider>
-          <div className="flex h-full flex-col">
-
-            <header className="sticky top-0 z-50 shrink-0 bg-white-primary">
-              <Header />
-            </header>
-
-
-            <main className="flex-1 flex flex-col overflow-y-auto h-full">
-
-              {children}
-
-            </main>
-          </div>
-        </TooltipProvider>
-
+      <body className=" bg-white-primary">
+        <GlobalLoader>
+          <GlobalOverlayLoader>
+            {children}
+          </GlobalOverlayLoader>
+        </GlobalLoader>
         <Toaster />
       </body>
     </html>

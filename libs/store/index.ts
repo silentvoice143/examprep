@@ -1,22 +1,26 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { AuditSlice, createAuditSlice } from "./silce/audit-slice";
+import { SidebarSlice, createSidebarSlice } from "./silce/sidebar-slice";
+import { AuthSlice, createAuthSlice } from "./silce/auth-slice";
 
-type Store = AuditSlice;
+type Store = SidebarSlice & AuthSlice;
 
 export const useStore = create<Store>()(
   persist(
     (...a) => ({
-      ...createAuditSlice(...a),
-
+      ...createSidebarSlice(...a),
+      ...createAuthSlice(...a)
     }),
     {
       name: "app-storage",
 
       // ⚠️ Persist only what you need
       partialize: (state) => ({
-        form: state.form,
-        report: state.report
+        isExpand: state.isExpand,
+        menuExpand: state.menuExpand,
+        user: state.user,
+        token: state.token,
+        isAuthenticated: state.isAuthenticated
       }),
     },
   ),

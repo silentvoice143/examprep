@@ -13,8 +13,31 @@ export async function POST(req: Request) {
         });
 
         if (existingUser) {
+            if (!existingUser.isEmailVerified) {
+                const otp = generateOtp();
+
+                await prisma.user.update({
+                    where: { email },
+                    data: {
+                        otp,
+                        otpExpiresAt: new Date(Date.now() + 5 * 60 * 1000),
+                    },
+                });
+
+                await sendOTPEmail({ email, otp });
+
+                return Response.json({
+                    success: true,
+                    requiresVerification: true,
+                    message: "Verification pending. New OTP sent.",
+                });
+            }
+
             return Response.json(
-                { success: false, message: "Email already exists" },
+                {
+                    success: false,
+                    message: "Email already exists",
+                },
                 { status: 400 }
             );
         }
@@ -37,15 +60,6 @@ export async function POST(req: Request) {
             },
         });
 
-        const transporter = nodemailer.createTransport({
-            host: process.env.SMTP_HOST,
-            port: Number(process.env.SMTP_PORT),
-            secure: false,
-            auth: {
-                user: process.env.SMTP_USER,
-                pass: process.env.SMTP_PASS,
-            },
-        });
 
         await sendOTPEmail({ email, otp })
 
