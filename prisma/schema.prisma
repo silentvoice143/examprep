@@ -1,0 +1,231 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum TransactionType {
+  PREMIUM_PURCHASE
+  REWARDED_AD
+  REFERRAL_BONUS
+  REFUND
+  SUBSCRIPTION
+}
+
+enum TransactionStatus {
+  PENDING
+  SUCCESS
+  FAILED
+}
+
+model User {
+  id            String   @id @default(cuid())
+  name          String
+  email         String   @unique
+  password      String
+  otp           String?
+  otpExpiresAt  DateTime?
+  isEmailVerified Boolean  @default(false)
+
+  premiumUntil  DateTime?
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  attempts      QuestionAttempt[]
+  testAttempts  TestAttempt[]
+  transactions  Transaction[]
+  adRewards     AdReward[]
+  topicStats    UserTopicStats[]
+}
+
+model Exam {
+  id          String    @id @default(cuid())
+  name        String
+  slug        String    @unique
+
+  subjects    Subject[]
+  tests       Test[]
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Subject {
+  id          String    @id @default(cuid())
+  name        String
+
+  examId      String
+  exam        Exam      @relation(fields: [examId], references: [id])
+
+  topics      Topic[]
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Topic {
+  id          String    @id @default(cuid())
+  name        String
+
+  subjectId   String
+  subject     Subject   @relation(fields: [subjectId], references: [id])
+
+  questions   Question[]
+  videos      TopicVideo[]
+  topicStats  UserTopicStats[]
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Question {
+  id            String   @id @default(cuid())
+
+  question      String   @db.Text
+
+  optionA       String
+  optionB       String
+  optionC       String
+  optionD       String
+
+  answer        String
+
+  explanation   String?  @db.Text
+
+  year          Int?
+
+  difficulty    Int      @default(1)
+
+  topicId       String
+  topic         Topic    @relation(fields: [topicId], references: [id])
+
+  attempts      QuestionAttempt[]
+  testQuestions TestQuestion[]
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model TopicVideo {
+  id          String   @id @default(cuid())
+
+  title       String
+  youtubeUrl  String
+
+  topicId     String
+  topic       Topic    @relation(fields: [topicId], references: [id])
+
+  createdAt   DateTime @default(now())
+}
+
+model QuestionAttempt {
+  id            String   @id @default(cuid())
+
+  userId        String
+  user          User     @relation(fields: [userId], references: [id])
+
+  questionId    String
+  question      Question @relation(fields: [questionId], references: [id])
+
+  selected      String
+
+  isCorrect     Boolean
+
+  createdAt     DateTime @default(now())
+}
+
+model Test {
+  id            String   @id @default(cuid())
+
+  name          String
+
+  examId        String?
+  exam          Exam?    @relation(fields: [examId], references: [id])
+
+  questions     TestQuestion[]
+  testAttempts  TestAttempt[]
+
+  createdAt     DateTime @default(now())
+}
+
+model TestQuestion {
+  id            String   @id @default(cuid())
+
+  testId        String
+  test          Test     @relation(fields: [testId], references: [id])
+
+  questionId    String
+  question      Question @relation(fields: [questionId], references: [id])
+}
+
+model TestAttempt {
+  id                String   @id @default(cuid())
+
+  userId            String
+  user              User     @relation(fields: [userId], references: [id])
+
+  testId            String
+  test              Test     @relation(fields: [testId], references: [id])
+
+  score             Int
+  totalQuestions    Int
+
+  createdAt         DateTime @default(now())
+}
+
+model AdReward {
+  id          String   @id @default(cuid())
+
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+
+  rewardedAt  DateTime @default(now())
+  expiresAt   DateTime
+}
+
+model UserTopicStats {
+  id            String   @id @default(cuid())
+
+  userId        String
+  user          User     @relation(fields: [userId], references: [id])
+
+  topicId       String
+  topic         Topic    @relation(fields: [topicId], references: [id])
+
+  attempts      Int      @default(0)
+  correct       Int      @default(0)
+
+  masteryScore  Float    @default(0)
+
+  @@unique([userId, topicId])
+}
+
+model Transaction {
+  id            String   @id @default(cuid())
+
+  userId        String
+  user          User     @relation(fields: [userId], references: [id])
+
+  type          TransactionType
+
+  amount        Decimal? @db.Decimal(10,2)
+
+  description   String
+
+  referenceId   String?
+
+  status        TransactionStatus
+
+  createdAt     DateTime @default(now())
+}
+
+
