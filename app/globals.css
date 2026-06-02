@@ -53,6 +53,11 @@
 
   --color-white-primary: #F8F9FF;
 
+  --color-brand-primary:#8200FF;
+  --color-brand-secondary:#470C85;
+  --color-brand-light: #06CDFF;
+  --color-brand-dark: #18134C;
+
   /* text size 
    */
    --text-size-md: 2.25rem;

@@ -1,4 +1,4 @@
-import jwt from "jsonwebtoken";
+import jwt, { JwtPayload } from "jsonwebtoken";
 
 export const generateToken = (userId: string) => {
     return jwt.sign(
@@ -8,11 +8,13 @@ export const generateToken = (userId: string) => {
     );
 };
 
-export const verifyToken = (token: string) => {
+export const verifyAccessToken = (
+    token: string
+): JwtPayload => {
     return jwt.verify(
         token,
         process.env.JWT_SECRET!
-    );
+    ) as JwtPayload;
 };
 
 export const generateOtp = () => {

@@ -15,7 +15,7 @@ export default function Home() {
           {/* Left Content */}
           <div className="w-full md:max-w-3xl">
             <div className="mb-8">
-              <div className="inline-flex items-center gap-2 bg-blue-100 text-blue-700 rounded-full px-4 py-2 mb-6">
+              <div className="inline-flex items-center gap-2 bg-blue-100 text-brand-dark rounded-full px-4 py-2 mb-6">
                 🚀 India's Smartest Mock Test Platform
               </div>
 
@@ -30,16 +30,16 @@ export default function Home() {
               </p>
 
               <div className="flex flex-wrap gap-4">
-                <Link href="/tests">
-                  <Button className="h-12 px-8">
+                <Link href="/login">
+                  <Button className="h-12 px-8 bg-brand-dark">
                     Start Free Test
                   </Button>
                 </Link>
 
-                <Link href="/exams">
+                <Link href="/login">
                   <Button
                     variant="outline"
-                    className="h-12 px-8"
+                    className="h-12 px-8 "
                   >
                     Explore Exams
                   </Button>

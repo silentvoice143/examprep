@@ -1,55 +1,97 @@
+import { TokenPurpose } from "@/generated/prisma/enums";
 import { prisma } from "@/libs/prisma";
 
-export async function POST(req: Request) {
+export async function GET(req: Request) {
     try {
-        const { email, otp } = await req.json();
+        const { searchParams } = new URL(req.url);
 
-        const user = await prisma.user.findUnique({
-            where: { email },
-        });
+        const token = searchParams.get("token");
 
-        if (!user) {
+        if (!token) {
             return Response.json(
-                { success: false, message: "User not found" },
-                { status: 404 }
+                {
+                    success: false,
+                    message: "Verification token is required",
+                },
+                { status: 400 }
             );
         }
 
-        if (user.otp !== otp) {
+        const verificationToken =
+            await prisma.userToken.findUnique({
+                where: {
+                    token,
+                },
+                include: {
+                    user: true,
+                },
+            });
+
+        if (!verificationToken) {
             return Response.json(
-                { success: false, message: "Invalid OTP" },
+                {
+                    success: false,
+                    message: "Invalid verification link",
+                },
                 { status: 400 }
             );
         }
 
         if (
-            !user.otpExpiresAt ||
-            user.otpExpiresAt < new Date()
+            verificationToken.purpose !==
+            TokenPurpose.EMAIL_VERIFICATION
         ) {
             return Response.json(
-                { success: false, message: "OTP expired" },
+                {
+                    success: false,
+                    message: "Invalid token purpose",
+                },
                 { status: 400 }
             );
         }
 
-        await prisma.user.update({
-            where: { id: user.id },
-            data: {
-                isEmailVerified: true,
-                otp: null,
-                otpExpiresAt: null,
-            },
-        });
+        if (
+            verificationToken.expiresAt <
+            new Date()
+        ) {
+            return Response.json(
+                {
+                    success: false,
+                    message: "Verification link expired",
+                },
+                { status: 400 }
+            );
+        }
+
+        await prisma.$transaction([
+            prisma.user.update({
+                where: {
+                    id: verificationToken.userId,
+                },
+                data: {
+                    isEmailVerified: true,
+                },
+            }),
+
+            prisma.userToken.delete({
+                where: {
+                    id: verificationToken.id,
+                },
+            }),
+        ]);
 
         return Response.json({
             success: true,
             message: "Email verified successfully",
         });
     } catch (error) {
-        console.error(error);
+        console.error("VERIFY EMAIL ERROR:", error);
 
         return Response.json(
-            { success: false, message: "Internal server error" },
+            {
+                success: false,
+                message: "Internal server error",
+            },
             { status: 500 }
         );
     }
