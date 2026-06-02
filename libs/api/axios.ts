@@ -1,5 +1,6 @@
 import axios from "axios";
 import { toast } from "sonner";
+import { getAccessToken } from "../utils/autn-client";
 
 const baseurl = process.env.NEXT_PUBLIC_BASE_URL;
 
@@ -17,11 +18,11 @@ let isLoggingOut = false;
 // ======================
 api.interceptors.request.use(
   (config) => {
-    // const token = getAccessToken();
+    const token = getAccessToken();
 
-    // if (token) {
-    //   config.headers.Authorization = `Bearer ${token}`;
-    // }
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
 
     // ✅ LOG FULL URL
     const fullUrl = `${config.baseURL}${config.url}`;

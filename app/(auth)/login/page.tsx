@@ -28,7 +28,7 @@ const LoginPage = () => {
                             placeholder="Enter your email"
                             iconLeft={<Mail size={18} />}
                             className="[&>label]:text-gray-primary"
-                            inputContainerClassName="bg-black/30"
+
                         />
 
                         <CustomInput
@@ -38,7 +38,6 @@ const LoginPage = () => {
                             iconLeft={<Lock size={18} />}
                             showPasswordToggle
                             className="[&>label]:text-gray-primary"
-                            inputContainerClassName="bg-black/30"
                         />
 
 

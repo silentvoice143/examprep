@@ -1,6 +1,6 @@
 // libs/with-auth.ts
 
-import { getAuthUser } from "./auth";
+import { getAuthUser } from "../helpers/auth";
 
 export function withAuth(
     handler: (
@@ -20,7 +20,7 @@ export function withAuth(
 
             return handler(
                 req,
-                user
+                user as any
             );
         } catch {
             return Response.json(

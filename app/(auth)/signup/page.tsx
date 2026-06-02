@@ -2,11 +2,31 @@
 
 import { CustomInput } from "@/components/shared/custom-input";
 import { Button } from "@/components/ui/button";
+import { authApi } from "@/libs/api/api-services/auth.api";
+import { handleApiError } from "@/libs/utils/error-handler";
 import { Lock, Mail, Phone, User } from "lucide-react";
 import Link from "next/link";
+import { useState } from "react";
 
 
 const SignupPage = () => {
+    const [form, setForm] = useState({
+        name: "",
+        email: "",
+        phone: "",
+        password: "",
+        confirmPassword: ""
+    })
+
+    const handleSubmit = async (e: any) => {
+        e.preventDefault();
+        try {
+            const response = await authApi.signup(form)
+            console.log(response)
+        } catch (err) {
+            handleApiError(err)
+        }
+    }
     return (
         <div className="min-h-screen flex items-center justify-center bg-brand-dark px-4 py-10">
             <div className="w-full max-w-md">
@@ -22,14 +42,17 @@ const SignupPage = () => {
                     </div>
 
                     {/* Form */}
-                    <form className="space-y-5">
+                    <form className="space-y-5" onSubmit={handleSubmit}>
                         <CustomInput
                             label="Full Name"
                             type="text"
                             placeholder="Enter your full name"
                             iconLeft={<User size={18} />}
                             className="[&>label]:text-gray-primary"
-                            inputContainerClassName="bg-black/30"
+                            // inputContainerClassName="bg-black/30 text-white"
+                            inputClassName="text-white "
+                            value={form.name}
+                            onChange={(e) => setForm({ ...form, name: e.target.value })}
                         />
 
                         <CustomInput
@@ -38,7 +61,11 @@ const SignupPage = () => {
                             placeholder="Enter your email"
                             iconLeft={<Mail size={18} />}
                             className="[&>label]:text-gray-primary"
-                            inputContainerClassName="bg-black/30"
+                            // inputContainerClassName="bg-black/30 text-white"
+                            inputClassName="text-white"
+                            value={form.email}
+                            onChange={(e) => setForm({ ...form, email: e.target.value })}
+
                         />
 
                         <CustomInput
@@ -47,7 +74,10 @@ const SignupPage = () => {
                             placeholder="Enter your mobile number"
                             iconLeft={<Phone size={18} />}
                             className="[&>label]:text-gray-primary"
-                            inputContainerClassName="bg-black/30"
+
+                            value={form.phone}
+                            onChange={(e) => setForm({ ...form, phone: e.target.value })}
+
                         />
 
                         <CustomInput
@@ -57,7 +87,10 @@ const SignupPage = () => {
                             iconLeft={<Lock size={18} />}
                             showPasswordToggle
                             className="[&>label]:text-gray-primary"
-                            inputContainerClassName="bg-black/30"
+
+                            value={form.password}
+                            onChange={(e) => setForm({ ...form, password: e.target.value })}
+
                         />
 
                         <CustomInput
@@ -67,7 +100,10 @@ const SignupPage = () => {
                             iconLeft={<Lock size={18} />}
                             showPasswordToggle
                             className="[&>label]:text-gray-primary"
-                            inputContainerClassName="bg-black/30"
+
+                            value={form.confirmPassword}
+                            onChange={(e) => setForm({ ...form, confirmPassword: e.target.value })}
+
                         />
 
                         <label className="flex items-start gap-3 text-sm text-gray-primary">

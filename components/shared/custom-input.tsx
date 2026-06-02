@@ -65,6 +65,7 @@ interface InputWithIconProps extends React.InputHTMLAttributes<HTMLInputElement>
         content: React.ReactNode;
         toolTipClassName?: string;
     };
+    autofillBgColor?: string;
 }
 
 export const CustomInput = React.forwardRef<
@@ -89,7 +90,7 @@ export const CustomInput = React.forwardRef<
             iconLeftClassName,
             inputContainerClassName,
             infoTooltip,
-
+            autofillBgColor = "transparent",
             step, // This is automatically included from React.InputHTMLAttributes
             ...props
         },
@@ -113,6 +114,8 @@ export const CustomInput = React.forwardRef<
         const hasError = Boolean(error);
         const hasSuccess = success && !hasError;
         const hasValue = Boolean(props.value || props.defaultValue);
+
+
 
         // Render label with optional info tooltip
         const renderLabel = () => {
@@ -157,6 +160,35 @@ export const CustomInput = React.forwardRef<
                 </label>
             );
         };
+
+
+        React.useEffect(() => {
+            const styleId = `autofill-style-${inputId}`;
+
+            // Remove existing if any
+            document.getElementById(styleId)?.remove();
+
+            const styleTag = document.createElement("style");
+            styleTag.id = styleId;
+            styleTag.textContent = `
+        #${CSS.escape(inputId)}:-webkit-autofill,
+        #${CSS.escape(inputId)}:-webkit-autofill:hover,
+        #${CSS.escape(inputId)}:-webkit-autofill:focus,
+        #${CSS.escape(inputId)}:-webkit-autofill:active {
+            -webkit-box-shadow: 0 0 0 1000px ${autofillBgColor} inset !important;
+            box-shadow: 0 0 0 1000px ${autofillBgColor} inset !important;
+            -webkit-text-fill-color: currentColor !important;
+            caret-color: currentColor !important;
+            transition: background-color 99999s ease-in-out 0s;
+        }
+    `;
+            document.head.appendChild(styleTag);
+
+            // Cleanup on unmount
+            return () => {
+                document.getElementById(styleId)?.remove();
+            };
+        }, [inputId, autofillBgColor]);
 
         return (
             <div className={cn("w-full space-y-1 px-0.5", className)}>
@@ -206,6 +238,10 @@ export const CustomInput = React.forwardRef<
 
                         {/* Input Field */}
                         <Input
+                            style={{
+                                WebkitTextFillColor: "currentColor",
+                                caretColor: "currentColor",
+                            }}
                             id={inputId}
                             ref={ref}
                             type={type}
@@ -213,7 +249,8 @@ export const CustomInput = React.forwardRef<
                             className={cn(
                                 "w-full border-0 bg-transparent shadow-none focus-visible:ring-0",
                                 "placeholder:text-neutral-400 text-neutral-900",
-                                " text-base transition-colors duration-200",
+                                " text-base transition-colors duration-200 autofill:bg-transparent",
+                                "[&:-webkit-autofill]:shadow-[0_0_0px_1000px_transparent_inset]",
                                 iconLeft && "pl-10",
                                 height,
                                 (iconRight || showPasswordToggle || hasError || hasSuccess) &&
