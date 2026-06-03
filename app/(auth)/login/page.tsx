@@ -1,11 +1,31 @@
 "use client"
 import { CustomInput } from "@/components/shared/custom-input";
 import { Button } from "@/components/ui/button";
+import { authApi } from "@/libs/api/api-services/auth.api";
+import { handleApiError } from "@/libs/utils/error-handler";
 import { Lock, Mail } from "lucide-react";
 import Link from "next/link";
-import React from "react";
+import { useRouter } from "next/navigation";
+import React, { useState } from "react";
+import { toast } from "sonner";
 
 const LoginPage = () => {
+    const route = useRouter()
+    const [form, setForm] = useState({
+        email: "",
+        password: ""
+    })
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        try {
+            const response = await authApi.login(form)
+            if (response.success) {
+                route.push("/dashboard")
+            }
+        } catch (err) {
+            handleApiError(err)
+        }
+    }
     return (
         <div className="min-h-screen flex items-center justify-center bg-brand-dark px-4">
             <div className="w-full max-w-md">
@@ -21,14 +41,15 @@ const LoginPage = () => {
                     </div>
 
                     {/* Form */}
-                    <form className="space-y-5">
+                    <form className="space-y-5" onSubmit={handleSubmit}>
                         <CustomInput
                             label="Email Address"
                             type="email"
                             placeholder="Enter your email"
                             iconLeft={<Mail size={18} />}
                             className="[&>label]:text-gray-primary"
-
+                            value={form.email}
+                            onChange={e => setForm(prev => ({ ...prev, email: e.target.value }))}
                         />
 
                         <CustomInput
@@ -38,6 +59,8 @@ const LoginPage = () => {
                             iconLeft={<Lock size={18} />}
                             showPasswordToggle
                             className="[&>label]:text-gray-primary"
+                            value={form.password}
+                            onChange={e => setForm(prev => ({ ...prev, password: e.target.value }))}
                         />
 
 

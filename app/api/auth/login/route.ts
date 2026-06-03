@@ -50,6 +50,7 @@ export async function POST(req: Request) {
                 name: user.name,
                 email: user.email,
             },
+            message: "User login successfully"
         });
     } catch (error) {
         console.error(error);

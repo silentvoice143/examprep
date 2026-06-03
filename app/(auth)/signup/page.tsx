@@ -50,7 +50,7 @@ const SignupPage = () => {
                             iconLeft={<User size={18} />}
                             className="[&>label]:text-gray-primary"
                             // inputContainerClassName="bg-black/30 text-white"
-                            inputClassName="text-white "
+                            inputClassName="text-black "
                             value={form.name}
                             onChange={(e) => setForm({ ...form, name: e.target.value })}
                         />
@@ -62,7 +62,7 @@ const SignupPage = () => {
                             iconLeft={<Mail size={18} />}
                             className="[&>label]:text-gray-primary"
                             // inputContainerClassName="bg-black/30 text-white"
-                            inputClassName="text-white"
+                            inputClassName="text-black"
                             value={form.email}
                             onChange={(e) => setForm({ ...form, email: e.target.value })}
 
@@ -74,6 +74,7 @@ const SignupPage = () => {
                             placeholder="Enter your mobile number"
                             iconLeft={<Phone size={18} />}
                             className="[&>label]:text-gray-primary"
+                            inputClassName="text-black"
 
                             value={form.phone}
                             onChange={(e) => setForm({ ...form, phone: e.target.value })}
@@ -87,7 +88,7 @@ const SignupPage = () => {
                             iconLeft={<Lock size={18} />}
                             showPasswordToggle
                             className="[&>label]:text-gray-primary"
-
+                            inputClassName="text-black"
                             value={form.password}
                             onChange={(e) => setForm({ ...form, password: e.target.value })}
 
@@ -100,7 +101,6 @@ const SignupPage = () => {
                             iconLeft={<Lock size={18} />}
                             showPasswordToggle
                             className="[&>label]:text-gray-primary"
-
                             value={form.confirmPassword}
                             onChange={(e) => setForm({ ...form, confirmPassword: e.target.value })}
 

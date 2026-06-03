@@ -27,6 +27,7 @@ export async function GET(req: Request) {
                 },
             });
 
+
         if (!verificationToken) {
             return Response.json(
                 {
