@@ -2,7 +2,9 @@
 import { CustomInput } from "@/components/shared/custom-input";
 import { Button } from "@/components/ui/button";
 import { authApi } from "@/libs/api/api-services/auth.api";
+import { useZodValidation } from "@/libs/hooks/useZod";
 import { handleApiError } from "@/libs/utils/error-handler";
+import { LoginFormData, loginSchema } from "@/libs/validation/auth.validation";
 import { Lock, Mail } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -13,9 +15,26 @@ const LoginPage = () => {
     const route = useRouter()
     const [form, setForm] = useState({
         email: "",
-        password: ""
+        password: "",
+        remember:false
     })
+
+    const { errors, validateField, validateForm } =
+        useZodValidation({
+          schema: loginSchema,
+        });
+    
+        const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+            const { name, value, type, checked } = e.target;
+            setForm((prev) => ({
+                ...prev,
+                [name]: type === "checkbox" ? checked : value,
+            }));
+            validateField(name as keyof LoginFormData, value);
+        };
     const handleSubmit = async (e: React.FormEvent) => {
+        const isValid = validateForm(form)
+        if(!isValid) return;
         e.preventDefault();
         try {
             const response = await authApi.login(form)
@@ -43,16 +62,19 @@ const LoginPage = () => {
                     {/* Form */}
                     <form className="space-y-5" onSubmit={handleSubmit}>
                         <CustomInput
+                            name="email"
                             label="Email Address"
                             type="email"
                             placeholder="Enter your email"
                             iconLeft={<Mail size={18} />}
                             className="[&>label]:text-gray-primary"
                             value={form.email}
-                            onChange={e => setForm(prev => ({ ...prev, email: e.target.value }))}
+                            onChange={handleChange}
+                            error={errors.email}
                         />
 
                         <CustomInput
+                            name="password"
                             label="Password"
                             type="password"
                             placeholder="Enter your password"
@@ -60,21 +82,25 @@ const LoginPage = () => {
                             showPasswordToggle
                             className="[&>label]:text-gray-primary"
                             value={form.password}
-                            onChange={e => setForm(prev => ({ ...prev, password: e.target.value }))}
+                            onChange={handleChange}
+                            error={errors.password}
                         />
 
 
                         <div className="flex items-center justify-between text-sm">
                             <label className="flex items-center gap-2 text-gray-primary">
                                 <input
+                                    name="remember"
                                     type="checkbox"
                                     className="accent-brand-primary"
-
+                                    checked={form.remember}
+                                    onChange={handleChange}
                                 />
                                 Remember me
                             </label>
 
                             <button
+                                
                                 type="button"
                                 className="text-brand-light hover:text-white transition-colors"
                             >
